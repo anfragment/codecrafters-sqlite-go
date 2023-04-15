@@ -6,9 +6,12 @@ import (
 	"fmt"
 	"log"
 	"os"
+
 	// Available if you need it!
 	// "github.com/pingcap/parser"
 	// "github.com/pingcap/parser/ast"
+
+	"github/com/codecrafters-io/sqlite-starter-go/app/page"
 )
 
 // Usage: your_sqlite3.sh sample.db .dbinfo
@@ -36,8 +39,18 @@ func main() {
 			return
 		}
 
-		// Uncomment this to pass the first stage
-		fmt.Printf("database page size: %v", pageSize)
+		schemaPage := page.Page(make([]byte, pageSize))
+		_, err = databaseFile.Read(schemaPage)
+		if err != nil {
+			log.Fatal(err)
+		}
+		metadata, err := schemaPage.Metadata()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Printf("database page size: %v\n", pageSize)
+		fmt.Printf("number of tables: %d\n", metadata.Cells)
 	default:
 		fmt.Println("Unknown command", command)
 		os.Exit(1)
